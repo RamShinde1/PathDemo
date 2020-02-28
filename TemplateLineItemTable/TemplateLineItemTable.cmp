@@ -1,0 +1,98 @@
+<aura:component access="global" controller="PanelOutComeController">
+    <aura:attribute name="assessmentLineItems" type="Assessment_Line_Item__c[]"/>
+    <aura:attribute name="overallFeedbackOptions" type="List"/>
+    <aura:attribute name="assessment" type="Assessment__c"/>
+    <aura:attribute name="totalActualScore" type="Integer" default="0"/>
+
+    <aura:attribute name="totalMaxScore" type="Integer" default="0"/>
+    <aura:attribute name="assessmentWrapper" type="PanelOutComeController.AssessmentFieldsWrapper"/>
+
+    <aura:registerEvent name="finish" type="c:ProcessButtonEvent" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="cmpAccEvent" event="c:AssessmentLineItemEvent" action="{!c.callAction}"/> 
+
+    <table id="myTable" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+        
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                    <div class="slds-truncate" >Technology</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate ">Max Score</div>                        
+                </th>
+                <th class="setWidth" scope="col">
+                    
+                    <div class="slds-truncate ">Actual Score <span class="setRequiredColour">*</span> </div>                      
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate  ">Repanel</div>                        
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate ">Comments</div>                        
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:if isTrue="{!v.assessmentLineItems.length>=1}">
+                <aura:iteration items="{!v.assessmentLineItems}" var="lineItem" indexVar="index">
+                    <c:TemplateLineItemRecords aura:id="idealRows" lineItem="{!lineItem}"/>
+                </aura:iteration>
+                
+                <tr class="slds-hint-parent">
+                    <td > 
+                        <div class="slds-truncate">Total</div>
+                    </td>
+                    <td>
+                        <div class="slds-truncate">Max Score: {!v.totalMaxScore}</div>
+                    </td>
+                    <td>
+                        <div class="slds-truncate">Actual Score: {!v.totalActualScore}</div>
+                    </td>
+                    <td >
+                        
+                        <div class="slds-truncate slds-hide">Total</div>
+                    </td>
+                    <td >
+                        
+                        <div class="slds-truncate slds-hide">Total</div>
+                    </td>
+                </tr>
+                <aura:set attribute="else">
+                    <div class="slds-align_absolute-center">No records to show</div> 
+                </aura:set>
+            </aura:if>
+        </tbody>
+        
+    </table>
+    <br/>
+    <div class="slds-size_1-of-2 slds-grid slds-wrap">
+        <div class="slds-size_1-of-2">
+            <lightning:select name="OverallFeedback"  label="Overall Feedback"  class="setWidthFitContent" aura:id="OverallFeedback" value="{!v.assessment.OverallFeedback__c }">
+                <option value="">--None--</option>
+                <aura:iteration  items="{!v.overallFeedbackOptions}" var="option">
+                    <option value="{!option.label}">{!option.value}</option>
+                </aura:iteration>
+            </lightning:select>
+            
+        </div>
+        <div class="slds-size_1-of-2">
+            <lightning:input type="checkbox" label="Client Interview Ready?" checked="{!v.assessment.ClientInterviewReady__c}" value="{!v.assessment.ClientInterviewReady__c}"/>
+            
+            
+        </div>
+        
+    </div>
+    
+    <div class="slds-m-around_x-small">
+        <lightning:textarea name="input1"  value="{!v.assessment.Comments__c}"  label="Panel Comments" />
+        
+    </div>
+    
+    <div class="slds-float_right">
+        <div class="slds-no-flex">
+            <lightning:button class="slds-button slds-button_neutral" variant="brand" aura:id="Finish" onclick="{!c.handleFinalClick}" >Finish</lightning:button>
+        </div>
+    </div>
+</aura:component>

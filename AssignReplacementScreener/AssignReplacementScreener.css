@@ -1,0 +1,4 @@
+.THIS .read-only-container{
+    display: grid;
+    grid-template: 1fr 1fr / 1fr 1fr
+}

@@ -1,0 +1,80 @@
+.THIS .background{
+    position: relative;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: .25rem;
+    background-clip: padding-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    height: 100vh;
+    width: 100%;
+    display: flex;
+}
+
+.THIS .icon-con{
+    position: absolute;
+    top: 0.9rem;
+    left: 1rem;
+}
+
+.THIS .checkbox-con{
+    position: absolute;
+    top: 1.2rem;
+    right: 275px;
+}
+
+.THIS .icon-con button{
+    border-radius: 50%;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0070d2;
+    border-color: #0070d2;
+}
+
+.THIS .icon-con button span{
+    display: flex;
+}
+
+.THIS .icon-con button:hover{
+    background-color: #005fb2;
+    border-color: #005fb2;
+}
+
+.THIS.screen-con{
+    height: 100%;
+    width: 100%;
+}
+
+.THIS lightning-checkbox-group .slds-form-element__control{
+    display: flex;
+}
+
+.THIS .datetime-con{
+    width: 450px;
+    white-space: nowrap;
+}
+
+.THIS .date-con{
+    width: 225px;
+    white-space: nowrap;
+}
+
+.THIS #calendar-container {
+    width: 100%;
+}
+
+.THIS.slds-modal .slds-form-element{
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+.THIS.slds-modal .slds-form-element:first-child{
+    padding-top: 0;
+    padding-bottom: 0.4rem;
+}
+
+.THIS.slds-modal .slds-form-element:last-child{
+    padding-top: 0.4rem;
+    padding-bottom: 0;
+}

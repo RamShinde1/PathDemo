@@ -1,0 +1,189 @@
+<aura:component
+    implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId"
+    Controller="PanelOutComeController"
+    access="global"
+>
+    <aura:attribute name="assessmentRecord" type="Assessment__c" />
+    <aura:attribute name="assessmentWrapper" type="PanelOutComeController.AssessmentFieldsWrapper" />
+    <aura:attribute name="ScreenNumber" type="Integer" default="1" />
+    <aura:attribute name="totalMaxScore" type="Integer" default="0" />
+    <aura:attribute name="assessmentLineItems" type="Assessment_Line_Item__c[]" />
+
+    <aura:registerEvent name="finish" type="c:ProcessButtonEvent" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!v.ScreenNumber==1}">
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col setMaxWidth">
+                <div>
+                    <c:strike_lookup
+                        aura:id="contactId"
+                        label="Associate"
+                        required="true"
+                        disabled="true"
+                        object="Contact"
+                        searchField="Name"
+                        placeholder="Select an option"
+                        iconName="standard:contact"
+                        showRecentRecords="true"
+                        order="Name"
+                        limit="5"
+                        loadingMessage="Loading..."
+                        value="{!v.assessmentRecord.Associate__c}"
+                    />
+                </div>
+                <div>
+                    <c:strike_lookup
+                        label="Assigned To"
+                        required="true"
+                        aura:id="RequiredFieldVal"
+                        object="User"
+                        searchField="Name"
+                        placeholder="Select an option"
+                        iconName="standard:account"
+                        showRecentRecords="true"
+                        order="Name"
+                        limit="5"
+                        loadingMessage="Loading..."
+                        filter="userroleid in (select id from userrole where developername in ('Trainer','VPInformationTechnology','ManagerTechnology','Screener','Panelist'))"
+                        value="{!v.assessmentRecord.AssignedTo__c }"
+                    />
+                </div>
+
+                <div>
+                    <c:strike_lookup
+                        label="Template"
+                        required="true"
+                        aura:id="RequiredFieldVal"
+                        object="Template__c"
+                        searchField="Name"
+                        placeholder="Select an option"
+                        iconName="standard:account"
+                        showRecentRecords="true"
+                        order="Name"
+                        limit="5"
+                        loadingMessage="Loading..."
+                        filter="Active__c=	true and RecordType.DeveloperName = 'Panel'"
+                        value="{!v.assessmentRecord.Template__c }"
+                    />
+                </div>
+                <div>
+                    <lightning:input
+                        type="Number"
+                        label="Panel Round"
+                        name="Panel Round"
+                        value="{!v.assessmentRecord.PanelRound__c }"
+                        required="true"
+                        disabled="true"
+                    />
+                </div>
+                <div>
+                    <lightning:input type="Number" label="Duration" required="true" aura:id="DurationVal" name="Duration" value="{!v.assessmentRecord.Duration__c}" />
+                </div>
+                <div>
+                    <lightning:input
+                        type="datetime"
+                        name="datetimeInput"
+                        aura:id="RequiredFieldVal"
+                        label="Date/Time"
+                        required="true"
+                        value="{!v.assessmentRecord.Date__c}"
+                    />
+                </div>
+            </div>
+            <div class="slds-col slds-p-top_medium setMaxWidth">
+                <div>
+                    <lightning:input
+                        type="checkbox"
+                        label="Recording Consent"
+                        name="RecordingConsent"
+                        checked="{!v.assessmentRecord.RecordingConsent__c }"
+                        value="{!v.assessmentRecord.RecordingConsent__c }"
+                    />
+                </div>
+                <br></br>
+
+                <div>
+                    <lightning:input type="url" label="Recording Link" name="RecordingLink" value="{!v.assessmentRecord.RecordingLink__c }" />
+                </div>
+                <div>
+                    <lightning:select name="Mode" label="Mode" required="true" aura:id="RequiredFieldVal" value="{!v.assessmentRecord.Mode__c}">
+                        <option value="">--None--</option>
+                        <aura:iteration items="{!v.assessmentWrapper.modePicklistEntryOptions}" var="option">
+                            <option value="{!option.label}" selected="{!option.label==v.assessmentRecord.Mode__c}">{!option.value}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+                <div>
+                    <lightning:select
+                        name="Stability"
+                        label="Stability"
+                        required="true"
+                        aura:id="RequiredFieldVal"
+                        value="{!v.assessmentRecord.Stablity__c}"
+                    >
+                        <option value="">--None--</option>
+                        <aura:iteration items="{!v.assessmentWrapper.StablityPicklistEntryOptions}" var="option">
+                            <option value="{!option.label}" selected="{!option.label==v.assessmentRecord.Stablity__c}">{!option.value}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+                <div>
+                    <c:strike_lookup
+                        aura:id="TrainingAssignment"
+                        label="Training Assignment"
+                        disabled="true"
+                        object="TrainingAssignment__c"
+                        searchField="Name"
+                        placeholder="Select an option"
+                        iconName="standard:account"
+                        showRecentRecords="true"
+                        order="Name"
+                        limit="5"
+                        loadingMessage="Loading..."
+                        value="{!v.assessmentRecord.TrainingAssignment__c }"
+                    />
+                </div>
+                <div>
+                    <c:strike_lookup
+                        aura:id="Placement"
+                        label="Placement"
+                        disabled="true"
+                        object="Placement__c"
+                        searchField="Name"
+                        placeholder="Select an option"
+                        iconName="standard:account"
+                        showRecentRecords="true"
+                        order="Name"
+                        limit="5"
+                        loadingMessage="Loading..."
+                        value="{!v.assessmentRecord.Placement__c}"
+                    />
+                </div>
+            </div>
+        </div>
+        <div class="slds-float_right">
+            <div class="slds-no-flex">
+                <lightning:button class="slds-button slds-button_neutral" variant="brand" aura:id="nextClick" onclick="{!c.handleNextClick}"
+                    >Next</lightning:button
+                >
+            </div>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.ScreenNumber==2}">
+        <c:TemplateLineItemTable
+            overallFeedbackOptions="{!v.assessmentWrapper.overAllFeedBackPicklistEntryOptions}"
+            assessmentLineItems="{!v.assessmentLineItems}"
+            assessment="{!v.assessmentRecord}"
+            totalMaxScore="{!v.totalMaxScore}"
+        />
+        <div class="slds-float_right">
+            <div class="slds-no-flex">
+                <lightning:button class="slds-button slds-button_neutral marginNavigation" aura:id="Previous" onclick="{!c.handlePreviousClick}"
+                    >Previous</lightning:button
+                >
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

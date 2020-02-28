@@ -1,0 +1,116 @@
+<aura:component controller="ScreeningController" implements="force:hasRecordId" >
+    <aura:attribute name="screening" type="Screening__c" />
+    <aura:attribute name="replacementScreener" type="Id" />
+    <aura:attribute name="replacementScreenerFilter" type="String" />
+    <aura:attribute name="replacementScreenerIsError" type="Boolean" default="false" />
+    <aura:attribute name="UserRoleName" type="String"/>
+    <aura:attribute name="componentName" type="String" default="AssignReplacementScreener"/>
+    <aura:attribute name="panel" type="Assessment__c" />
+     <aura:attribute name="recordId" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:registerEvent name="finish" type="c:ProcessButtonEvent" />
+    <aura:if isTrue="{!v.componentName == 'AssignReplacementScreener'}">
+        <div class="process-content">
+            <div class="slds-p-horizontal_medium">
+                <!-- BEGIN Screening Information -->
+                <div class="read-only-container">
+                    
+                    <div class="slds-p-vertical_x-small" >
+                        <label class="slds-form-element__label">Candidate</label><br />
+                        <ui:outputText value="{!v.screening.Candidate__r.Name}" aura:id="candidate-name-output" />
+                    </div>
+                    <div class="slds-p-vertical_x-small" >
+                        <label class="slds-form-element__label">Screener</label><br />
+                        <ui:outputText value="{!v.screening.Screener__r.Name}" aura:id="screener-name-output" />
+                    </div>
+                    <div class="slds-p-vertical_x-small" >
+                        <label class="slds-form-element__label">Screen Date/Time</label><br />
+                        <ui:outputDateTime value="{!v.screening.ScreenDate__c}" aura:id="start-date-time-output" format="MMM d, yyyy h:mm a" />
+                    </div>
+                    <div class="slds-p-vertical_x-small" >
+                        <label class="slds-form-element__label">Screen Type</label><br />
+                        <ui:outputText value="{!v.screening.ScreenType__c}" aura:id="screen-type-output" />
+                    </div>
+                </div>
+                <!-- END Screening Information -->
+                
+                <!-- BEGIN Replacement Screener Input -->
+                <div class="slds-p-vertical_x-small" >
+                    <c:strike_lookup label="Replacement Screener"
+                                     value="{!v.replacementScreener}"
+                                     object="User"
+                                     searchField="Name"
+                                     placeholder="Enter a screener's name"
+                                     iconName="standard:user"
+                                     filter="{!v.replacementScreenerFilter}"
+                                     order="Name"
+                                     limit="15"
+                                     loadingMessage="Loading..."
+                                     errorMessage="Please enter a valid screener name."
+                                     required="true"
+                                     error="{!v.replacementScreenerIsError}"/>
+                </div>
+            </div>
+        </div>    
+        <!-- END Replacement Screener Input -->
+        
+        <footer class="process-footer">
+            <div class="button-bar">
+                <button class="slds-button slds-button_brand" onclick="{!c.handleFinish}">Finish</button>
+            </div>
+        </footer>
+        <aura:set attribute="else">
+            <div class="process-content">
+                <div class="slds-p-horizontal_medium">
+                    <!-- BEGIN Panel Information -->
+                    <div class="read-only-container">
+                        
+                        <div class="slds-p-vertical_x-small" >
+                            <label class="slds-form-element__label">Candidate</label><br />
+                            <ui:outputText value="{!v.panel.Associate__r.Name}" aura:id="candidate-name-output" />
+                        </div>
+                        <div class="slds-p-vertical_x-small" >
+                            <label class="slds-form-element__label">Panelist</label><br />
+                            <ui:outputText value="{!v.panel.AssignedTo__r.Name}" aura:id="screener-name-output" />
+                        </div>
+                        <div class="slds-p-vertical_x-small" >
+                            <label class="slds-form-element__label">Panel Date/Time</label><br />
+                            <ui:outputDateTime value="{!v.panel.Date__c}" aura:id="start-date-time-output" format="MMM d, yyyy h:mm a" />
+                        </div>
+                        <div class="slds-p-vertical_x-small" >
+                            <label class="slds-form-element__label">Panel Type</label><br />
+                            <ui:outputText value="{!v.panel.Mood__c}" aura:id="screen-type-output" />
+                        </div>
+                    </div>
+                    <!-- END Panel Information -->
+                    
+                    <!-- BEGIN Replacement Panel Input -->
+                    <div class="slds-p-vertical_x-small" >
+                        <c:strike_lookup label="Replacement Panel"
+                                         value="{!v.replacementScreener}"
+                                         object="User"
+                                         searchField="Name"
+                                         placeholder="Enter a Panelist's name"
+                                         iconName="standard:user"
+                                         filter="{!v.replacementScreenerFilter}"
+                                         order="Name"
+                                         limit="15"
+                                         loadingMessage="Loading..."
+                                         errorMessage="Please enter a valid Panelist name."
+                                         required="true"
+                                         error="{!v.replacementScreenerIsError}"/>
+                    </div>
+                </div>
+            </div>    
+            <!-- END Replacement Panel Input -->
+            
+            <footer class="process-footer">
+                <div class="button-bar">
+                    <button class="slds-button slds-button_brand" onclick="{!c.handleFinish}">Finish</button>
+                </div>
+            </footer>
+        </aura:set>
+    </aura:if>
+</aura:component>

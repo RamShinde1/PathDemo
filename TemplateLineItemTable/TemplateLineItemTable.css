@@ -1,0 +1,9 @@
+.THIS .setWidth{
+    width:20px;
+}
+.THIS .setWidthFitContent{
+        width: fit-content;
+}
+.THIS .setRequiredColour{
+        color:red;
+}

@@ -1,0 +1,156 @@
+<aura:component controller="ScreeningController" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:hasSObjectName"
+    access="global">
+    <aura:attribute name="programTypeOptions" type="List" />
+    <aura:attribute name="isManager" type="Boolean" default="true" />
+    <aura:attribute name="showAll" type="Boolean" default="false" />
+    <aura:attribute name="availabilityData" type="Map" default="{isScheduled:false, isOwner: true}" />
+    <aura:attribute name="cssStyle" type="String" />
+    <aura:attribute name="previousStart" type="Datetime" />
+    <aura:attribute name="selectedId" type="String" />
+    <aura:attribute name="programType" type="String" default="Regular" />
+    <aura:attribute name="startDateTime" type="Datetime" />
+    <aura:attribute name="mode" type="String" default="Add" />
+    <aura:attribute name="endDate" type="Date" />
+    <aura:attribute name="isRepeating" type="Boolean" default="false" />
+    <aura:attribute name="seriesCode" type="String" />
+    <aura:attribute name="repeatDaysSelected" type="List" default="Test" />
+    <aura:attribute name="selectedRadioOption" type="String" default="updateThis" />
+    <aura:attribute name="repeatDaysOptions" type="List" default="[
+        {'label': 'Sun', 'value': 'Sunday'},
+        {'label': 'Mon', 'value': 'Monday'},
+        {'label': 'Tue', 'value': 'Tuesday'},
+        {'label': 'Wed', 'value': 'Wednesday'},
+        {'label': 'Thu', 'value': 'Thursday'},
+        {'label': 'Fri', 'value': 'Friday'},
+        {'label': 'Sat', 'value': 'Saturday'}
+    ]" />
+    <aura:attribute name="seriesRadioOptions" type="List" default="[
+        {label: 'Update Event', value: 'updateThis'},
+        {label: 'Delete Event', value: 'deleteThis'}
+    ]" />
+     <aura:attribute name="UserRoleName" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="sendAvailabilityData" event="c:FullCalendarEvent" action="{!c.handleSendAvailabilityDataEvent}" />
+    <style>
+        {!v.cssStyle}
+    </style>
+    <div class="screen-con">
+        <div class="background">
+            <div class="icon-con">
+                <lightning:buttonIcon onclick="{!c.handleCreate}" title="Create Event" alternativeText="Create Event" variant="border-filled"
+                    iconName="utility:add" />
+            </div>
+            <aura:if isTrue="{!v.isManager}">
+                <div class="checkbox-con">
+                    <lightning:input type="checkbox" label="Show All" checked="{!v.showAll}" />
+                </div>
+            </aura:if>
+            <div id="calendar-container" class="slds-p-around_medium">
+                <c:FullCalendar aura:id="calendarComponent" showAll="{!v.showAll}" />
+            </div>
+        </div>
+    </div>
+
+    <section aura:id="availability-modal" class="slds-modal slds-fade-in-hide" role="dialog" tabindex="-1" aria-labelledby="modal-heading-01"
+        aria-modal="true" aria-describedby="modal-content-id-1">
+        <div class="slds-modal__container">
+            <aura:if isTrue="{! and(!(v.availabilityData.isScheduled), v.availabilityData.isOwner) }">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon class="slds-modal__close" onclick="{!c.handleClose}" iconName="utility:close" variant="bare-inverse"
+                        alternativeText="Close" size="large" />
+                     <aura:if isTrue="{!(v.UserRoleName=='Screener')}">
+                    <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-01">{!v.mode} Tech Screen Availability</h2>
+                    </aura:if>
+                     <aura:if isTrue="{!(v.UserRoleName!='Screener')}">
+                    <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-01">{!v.mode} Panel Availability</h2>
+                    </aura:if>
+                    </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <aura:if isTrue="{!(v.UserRoleName=='Screener')}">
+                    <div class="slds-p-bottom_small">
+                        <lightning:select label="Program Type" value="{!v.programType}">
+                            <aura:iteration items="{!v.programTypeOptions}" var="option" >
+                                <option value="{!option.value}" text="{!option.label}" />
+                            </aura:iteration>
+                        </lightning:select>
+                    </div>
+                        </aura:if>
+                    <div class="slds-p-vertical_small">
+                        <div class="datetime-con">
+                            <ui:inputDateTime aura:id="start-date-time" label="Start Date and Time" value="{!v.startDateTime}" class="form-control slds-input"
+                                displayDatePicker="true" required="true" labelClass="slds-form-element__label" />
+                        </div>
+                    </div>
+                    <div class="{! (v.mode == 'Add') ? 'slds-p-vertical_small' : 'slds-hide'}" style="display:flex">
+                        <lightning:input aura:id="repeat-checkbox" type="toggle" label="Repeats" name="repeatCheckbox" checked="{!v.isRepeating}"
+                            messageToggleActive="" messageToggleInactive="" />
+                    </div>
+                    <div aura:id="repeat-options" class="{!v.isRepeating ? '' : 'slds-hide'}">
+                        <div class="slds-p-vertical_small">
+                            <lightning:checkboxGroup aura:id="repeat-days" name="repeatDays" label="On" value="{!v.repeatDaysSelected}" options="{!v.repeatDaysOptions}"
+                                required="true" messageWhenValueMissing="Repeat On Days is Required" />
+                        </div>
+                        <div class="slds-p-vertical_smalll">
+                            <div class="date-con">
+                                <ui:inputDate aura:id="end-date" label="Through" value="{!v.endDate}" displayDatePicker="true" class="slds-input" labelClass="slds-form-element__label"
+                                    required="true" />
+                            </div>
+                        </div>
+                    </div>
+                    <div aura:id="series-options" class="slds-hide">
+                        <div class="slds-p-vertical_small">
+                            <lightning:radioGroup aura:id="series-radio" name="seriesRadio" label="Time Slot Action" options="{!v.seriesRadioOptions}"
+                                value="{!v.selectedRadioOption}" />
+                        </div>
+                    </div>
+
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.handleClose}">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick="{!c.handleSave}">Save</button>
+                </footer>
+
+                <aura:set attribute="else">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon class="slds-modal__close" onclick="{!c.handleClose}" iconName="utility:close" variant="bare-inverse"
+                            alternativeText="Close" size="large" />
+                        <h2 class="slds-text-heading_medium slds-hyphenate">Tech Screen Detail</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Screener</label>
+                            <div class="slds-form-element__control">
+                                {!v.availabilityData.screenerName}
+                            </div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Program Type</label>
+                            <div class="slds-form-element__control">
+                                {!v.availabilityData.programType}
+                            </div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Start Time</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputDateTime value="{!v.availabilityData.start}" />
+                            </div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Screen Type</label>
+                            <div class="slds-form-element__control">
+                                {!v.availabilityData.screenType}
+                            </div>
+                        </div>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Candidate Name</label>
+                            <div class="slds-form-element__control">
+                                <a onclick="{!c.navigateToObject}" data-id="{!v.availabilityData.candidateId}">{!v.availabilityData.candidateName}</a>
+                            </div>
+                        </div>
+                    </div>
+                </aura:set>
+            </aura:if>
+        </div>
+    </section>
+    <div aura:id="availability-modal-backdrop" class="slds-backdrop"></div>
+</aura:component>

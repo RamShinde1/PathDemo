@@ -1,0 +1,3 @@
+<aura:component  implements="force:hasRecordId,force:hasSObjectName" access="global">
+    <c:AssignReplacementScreener componentName="AssignReplacementPanel" recordId="{!v.recordId}"/>
+</aura:component>

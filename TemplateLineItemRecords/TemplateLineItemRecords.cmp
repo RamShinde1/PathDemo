@@ -1,0 +1,27 @@
+<aura:component>
+    <aura:attribute name="lineItem" type="Assessment_Line_Item__c"/>
+    <aura:attribute name="ActualScore" type="Integer" default="0"/>
+
+    <aura:registerEvent name="cmpAccEvent" type="c:AssessmentLineItemEvent"/>
+    
+    <tr class="slds-hint-parent">
+        <td data-label="Selected Templates">
+            
+            <div class="slds-truncate" title="test">{!v.lineItem.Name}</div>
+        </td>
+        <td>
+            <div class="slds-truncate"  title="test">{!v.lineItem.MaxScore__c }</div>
+        </td>
+        <td data-label="Score">
+            <ui:inputNumber  aura:id="NumericScore"  value="{!v.lineItem.NumericScore__c}" change="{!c.handleChange}"/> <br/>
+            
+         </td>
+        <td data-label="Repanel">
+            <ui:inputCheckbox aura:id="Repanel" value="{!v.lineItem.Repanel__c }" change="{!c.handleChange}"/>
+        </td>
+        <td data-label="Comment">
+            <ui:inputText  aura:id="Comment" class="field" value="{!v.lineItem.Comment__c}"/>
+        </td>
+        
+    </tr>
+</aura:component>

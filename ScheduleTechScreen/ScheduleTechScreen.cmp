@@ -1,0 +1,151 @@
+<aura:component controller="ScreeningController" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:hasSObjectName" access="global">
+    
+    <aura:attribute name="currentCandidateName" type="String" />
+    <aura:attribute name="componentName" type="String" default="ScheduleTechScreen"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="selectedSlot" type="Object" />
+    <aura:attribute name="screenerName" type="String" />
+    <aura:attribute name="startDateTime" type="DateTime" />
+    <aura:attribute name="screenType" type="String" default="Video"/>
+    <aura:attribute name="candidateName" type="String" />
+    <aura:attribute name="isScheduled" type="Boolean" default="false" />
+    <aura:attribute name="showAll" type="Boolean" default="false"/>
+    
+    <aura:registerEvent name="finish" type="c:ProcessButtonEvent" />
+    
+    <ltng:require styles="/resource/fullcalendar/fullcalendar-3.8.0/fullcalendar.min.css" scripts="/resource/fullcalendar/fullcalendar-3.8.0/lib/jquery.min.js,/resource/fullcalendar/fullcalendar-3.8.0/lib/moment.min.js,/resource/fullcalendar/fullcalendar-3.8.0/fullcalendar.min.js" afterScriptsLoaded="{!c.doInit}" />
+    
+    <div id="calendar"></div>
+    <aura:if isTrue="{!v.componentName == 'ScheduleTechScreen'}">
+        <section aura:id="screening-modal" class="slds-modal slds-fade-in-hide" role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container" style="width:30%">
+                <div class="modal-over-calendar">
+                    <header class="slds-modal__header">
+                        <h2 aura:id="modal-title-scheduled" class="slds-text-heading_medium slds-hyphenate slds-hide" id="modal-heading-01">Tech Screen Information</h2>
+                        <h2 aura:id="modal-title-unscheduled" class="slds-text-heading_medium slds-hyphenate slds-hide" id="modal-heading-01">Schedule Tech Screen</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div class="process-content">
+                            <div aura:id="screening-options-scheduled" class="slds-hide">
+                                <div class="grid grid__columns-two">
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Screener</label>
+                                        <ui:outputText value="{!v.screenerName}" aura:id="screener-name-output" />
+                                    </div>
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Screen Date and Time</label>
+                                        <ui:outputDateTime value="{!v.startDateTime}" aura:id="start-date-time-output" format="EEEE, MMM d, yyyy hh:mm a" />
+                                    </div>
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Screen Type</label>
+                                        <ui:outputText value="{!v.screenType}" aura:id="screen-type-output" />
+                                    </div>
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Candidate</label>
+                                        <ui:outputText value="{!v.candidateName}" aura:id="candidate-name-output" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div aura:id="screening-options-unscheduled" class="slds-hide">
+                                <div class="grid grid__columns-two">
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Screener</label>
+                                        <ui:outputText value="{!v.screenerName}" aura:id="screener-name-output" />
+                                    </div>
+                                    <div class="item" >
+                                        <label class="slds-form-element__label">Available Screen Date and Time</label>
+                                        <ui:outputDateTime value="{!v.startDateTime}" aura:id="start-date-time-output" format="EEEE, MMM d, yyyy hh:mm a"/>
+                                    </div>
+                                    <div class="item item__wide" >
+                                        <lightning:select value="{!v.screenType}" aura:id="screen-type-picklist" name="screenTypePicklist" label="Screen Type" >
+                                            <option value="Video">Video</option>
+                                            <option value="On Campus">On Campus</option>
+                                            <option value="Phone">Phone</option>
+                                            <option value="Office">Office</option>
+                                        </lightning:select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="process-footer" aura:id="modal-footer">
+                            <div aura:id="button-bar-scheduled" class="button-bar slds-hide">
+                                <button class="slds-button slds-button_brand" onclick="{!c.handleCancel}">Close</button>
+                            </div>
+                            <div aura:id="button-bar-unscheduled" class="button-bar slds-hide">
+                                <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}">Cancel</button>
+                                <button class="slds-button slds-button_brand" onclick="{!c.handleSchedule}">Finish</button>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <aura:set attribute="else">
+            <section aura:id="Panel-modal" class="slds-modal slds-fade-in-hide" role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+                <div class="slds-modal__container" style="width:30%">
+                    <div class="modal-over-calendar">
+                        <header class="slds-modal__header">
+                            <h2 aura:id="modal-title-scheduled-Panel" class="slds-text-heading_medium slds-hyphenate slds-hide" id="modal-heading-01">Panel Information</h2>
+                            <h2 aura:id="modal-title-unscheduled-Panel" class="slds-text-heading_medium slds-hyphenate slds-hide" id="modal-heading-01">Schedule Panel</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <div class="process-content">
+                                <div aura:id="Panel-options-scheduled" class="slds-hide">
+                                    <div class="grid grid__columns-two">
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Panel</label>
+                                            <ui:outputText value="{!v.screenerName}" aura:id="Panel-name-output" />
+                                        </div>
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Panel Date and Time</label>
+                                            <ui:outputDateTime value="{!v.startDateTime}" aura:id="panel-start-date-time-output" format="EEEE, MMM d, yyyy hh:mm a" />
+                                        </div>
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Panel Type</label>
+                                            <ui:outputText value="{!v.screenType}" aura:id="panel-screen-type-output" />
+                                        </div>
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Candidate</label>
+                                            <ui:outputText value="{!v.candidateName}" aura:id="panel-candidate-name-output" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div aura:id="panel-options-unscheduled" class="slds-hide">
+                                    <div class="grid grid__columns-two">
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Panel</label>
+                                            <ui:outputText value="{!v.screenerName}" aura:id="Panel-name-output" />
+                                        </div>
+                                        <div class="item" >
+                                            <label class="slds-form-element__label">Available Panel Date and Time</label>
+                                            <ui:outputDateTime value="{!v.startDateTime}" aura:id="panel-start-date-time-output" format="EEEE, MMM d, yyyy hh:mm a"/>
+                                        </div>
+                                        <div class="item item__wide" >
+                                            <lightning:select value="{!v.screenType}" aura:id="panel-screen-type-picklist" name="screenTypePicklist" label="Panel Type" >
+                                                <option value="Video">Video</option>
+                                                <option value="On Campus">On Campus</option>
+                                                <option value="Phone">Phone</option>
+                                                <option value="Office">Office</option>
+                                            </lightning:select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <footer class="process-footer" aura:id="panel-modal-footer">
+                                <div aura:id="panel-button-bar-scheduled" class="button-bar slds-hide">
+                                    <button class="slds-button slds-button_brand" onclick="{!c.handleCancel}">Close</button>
+                                </div>
+                                <div aura:id="panel-button-bar-unscheduled" class="button-bar slds-hide">
+                                    <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick="{!c.handleSchedule}">Finish</button>
+                                </div>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </aura:set>
+    </aura:if>
+    <lightning:spinner aura:id="spinner" variant="brand" class="slds-hide" alternativeText="Saving..." />
+</aura:component>
