@@ -1,6 +1,9 @@
 <template>
     <lightning-card title="HelloWorld" icon-name="custom:custom14">
         <div class="slds-m-around_medium">
+            <p>Hi</p>
+            <lightning-input label="Name" value={greeting} onchange={changeHandler}></lightning-input>
+            // new Changes added by Ram
 
             <p>Hi</p>
             <lightning-input label="Name" value={greeting} onchange={changeHandler}></lightning-input>
@@ -8,6 +11,8 @@
             <p>Hello, {greeting}!</p>
             <lightning-input label="Name" value={greeting} onchange={changeHandler}></lightning-input>
             <!-- Commented on 21-09-22 -->
+            <lightning-input label="Name" value={greeting} onchange={changeHandler}></lightning-input>
+            <!-- Commented on 22-09-22  from Demo20 Branch again-->
         </div>
     </lightning-card>
 </template>
